@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | Recipe Management System</title>
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <h2>Create Account ✨</h2>
+    <p class="subtitle">Register to start managing recipes</p>
+
+    <div class="error-message" id="error"></div>
+
+    <form id="registerForm">
+
+      <div class="input-group">
+        <span class="icon">👤</span>
+        <input type="text" id="f_name" placeholder="First Name" required />
+      </div>
+
+      <div class="input-group">
+        <span class="icon">👤</span>
+        <input type="text" id="l_name" placeholder="Last Name" required />
+      </div>
+
+      <div class="input-group">
+        <span class="icon">📧</span>
+        <input type="email" id="email" placeholder="Email Address" required />
+      </div>
+
+      <div class="input-group">
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="Password" required />
+      </div>
+
+      <div class="input-group">
+        <span class="icon">🔒</span>
+        <input type="password" id="confirm_password" placeholder="Confirm Password" required />
+      </div>
+
+      <button type="submit" class="login-btn">Register</button>
+
+    </form>
+
+    <p class="register-text">
+      Already have an account? <a href="login.html">Login</a>
+    </p>
+
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("registerForm");
+  const error = document.getElementById("error");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const f_name = document.getElementById("f_name").value.trim();
+    const l_name = document.getElementById("l_name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirm_password = document.getElementById("confirm_password").value;
+
+    error.textContent = "";
+
+    // Confirm password check
+    if (password !== confirm_password) {
+      error.textContent = "Passwords do not match";
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ f_name, l_name, email, password, confirm_password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        error.textContent = data.message || "Registration failed";
+        return;
+      }
+
+      alert("Registration successful! Please login.");
+      window.location.href = "login.html";
+    } catch (err) {
+      error.textContent = "Network error, please try again.";
+      console.error(err);
+    }
+  });
+</script>
+
+</body>
+</html>
