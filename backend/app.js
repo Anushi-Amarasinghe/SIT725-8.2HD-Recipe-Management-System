@@ -19,4 +19,9 @@ app.use(express.static(path.join(__dirname, "../frontend")));
 app.use("/api/auth", authRoutes);
 //app.use("/api/recipes", recipeRoutes);
 
+// Handle 404 for unknown routes
+app.use((req, res) => {
+  res.status(404).send('Page Not Found');
+});
+
 module.exports = app;

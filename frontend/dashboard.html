@@ -1,24 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard | Recipe Management System</title>
+
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 </head>
+
 <body>
-<h2>Your Recipes</h2>
-<ul id="recipes"></ul>
+
+<header>
+  <div class="logo">
+    <img src="images/rms_logo.png" alt="RMS Logo" />
+  </div>
+  <input type="search" placeholder="Search recipes..." />
+  <div class="username" id="usernameDisplay">User Name</div>
+</header>
+
+<div class="container">
+
+  <aside class="sidebar">
+    <button class="active" id="myRecipesBtn">My Recipes</button>
+    <button id="favouritesBtn">Favourites</button>
+    <button id="mealPlannerBtn">Meal Planner</button>
+    <button id="settingsBtn">Settings</button>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </aside>
+
+  <main class="content">
+    <div class="top-bar">
+      <h2>My Recipes</h2>
+      <button class="add-recipe" id="addRecipeBtn">+ Add New Recipe</button>
+    </div>
+
+    <div class="recipes-grid" id="recipesGrid">
+      <!-- Recipe cards -->
+      <div class="recipe-card">
+        <div class="image-placeholder">[IMAGE]</div>
+        <div class="content">
+          <div class="title">My Recipe 1</div>
+          <div class="rating">Rating: ★★★★☆</div>
+          <div class="actions">
+            <button>Edit</button>
+            <button>Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card">
+        <div class="image-placeholder">[IMAGE]</div>
+        <div class="content">
+          <div class="title">My Recipe 2</div>
+          <div class="rating">Rating: ★★★★☆</div>
+          <div class="actions">
+            <button>Edit</button>
+            <button>Delete</button>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-card">
+        <div class="image-placeholder">[IMAGE]</div>
+        <div class="content">
+          <div class="title">My Recipe 3</div>
+          <div class="rating">Rating: ★★★★☆</div>
+          <div class="actions">
+            <button>Edit</button>
+            <button>Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Include the global auth check script -->
+<script src="js/authCheck.js"></script>
 
 <script>
-fetch("/api/recipes", {
-  headers: {
-    Authorization: localStorage.getItem("token")
+  // Update greeting or username display if you want full name
+  const usernameDisplay = document.getElementById("usernameDisplay");
+
+  // When loadUser() in authCheck.js resolves, we can show the name
+  async function showUsername() {
+    try {
+      const res = await fetch("/api/auth/me", {
+        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+      });
+
+      if (!res.ok) throw new Error("Not authorized");
+
+      const user = await res.json();
+      usernameDisplay.textContent = user.f_name + " " + user.l_name;
+    } catch (err) {
+      console.error(err);
+    }
   }
-})
-.then(res => res.json())
-.then(data => {
-  document.getElementById("recipes").innerHTML =
-    data.map(r => `<li>${r.title}</li>`).join("");
-})
-.catch(err => console.error(err));
+
+  showUsername();
+
+  // Sidebar button active class
+  const sidebarButtons = document.querySelectorAll(".sidebar button:not(.logout)");
+  sidebarButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      sidebarButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
 </script>
+
 </body>
 </html>
