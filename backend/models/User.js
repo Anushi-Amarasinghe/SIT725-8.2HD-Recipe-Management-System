@@ -36,11 +36,12 @@ const userSchema = new mongoose.Schema({
 });
 
 // Pre-save hook to ensure email is always lowercase and trimmed
-userSchema.pre("save", function(next) {
+// Note: email field already has lowercase: true and trim: true in schema,
+// but keeping this hook for additional safety
+userSchema.pre("save", async function() {
   if (this.email) {
     this.email = this.email.toLowerCase().trim();
   }
-  next();
 });
 
 module.exports = mongoose.model("User", userSchema);

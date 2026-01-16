@@ -44,6 +44,14 @@ function validatePassword(password) {
  */
 router.post("/register", authLimiter, validateRegister, async (req, res) => {
   try {
+    // Check if JWT_SECRET is configured
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET is not defined in environment variables");
+      return sendError(res, 500, ErrorCodes.SERVER_ERROR, 
+        "Server configuration error", 
+        "JWT_SECRET is missing");
+    }
+
     // Check payload size (10kb limit)
     const contentLength = req.get("content-length");
     if (contentLength && parseInt(contentLength) > 10 * 1024) {
@@ -108,6 +116,7 @@ router.post("/register", authLimiter, validateRegister, async (req, res) => {
 
   } catch (error) {
     console.error("Register error:", error);
+    console.error("Error stack:", error.stack);
     return sendError(res, 500, ErrorCodes.SERVER_ERROR, 
       "Server error", 
       process.env.NODE_ENV === "development" ? error.message : undefined);
