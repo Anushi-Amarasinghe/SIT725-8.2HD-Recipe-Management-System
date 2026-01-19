@@ -1,3 +1,5 @@
+//routes/auth.js
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -6,6 +8,7 @@ const authMiddleware = require("../middleware/authMiddleware");
 const authLimiter = require("../middleware/rateLimiter");
 const { validateRegister, validateLogin } = require("../middleware/validation");
 const { sendError, ErrorCodes } = require("../utils/errorHandler");
+const crypto = require("crypto");
 
 const router = express.Router();
 
@@ -181,6 +184,103 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
       process.env.NODE_ENV === "development" ? error.message : undefined);
   }
 });
+
+
+/**
+ * REQUEST OTP LOGIN
+ * POST /api/auth/request-otp
+ */
+router.post("/request-otp", authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return sendError(res, 400, ErrorCodes.VALIDATION_ERROR, "Email is required");
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return sendError(res, 404, ErrorCodes.NOT_FOUND, "User not found");
+    }
+
+    if (user.active !== 1) {
+      return sendError(res, 403, ErrorCodes.FORBIDDEN, "Account is inactive");
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    user.otp = otp;
+    user.otpExpires = Date.now() + 5 * 60 * 1000; // 5 minutes
+    await user.save();
+
+    // TEMP: log OTP (replace with email/SMS later)
+    console.log(`OTP for ${normalizedEmail}:`, otp);
+
+    return res.json({ message: "OTP sent successfully" });
+
+  } catch (error) {
+    console.error("Request OTP error:", error);
+    return sendError(res, 500, ErrorCodes.SERVER_ERROR, "Server error");
+  }
+});
+
+/**
+ * VERIFY OTP & LOGIN
+ * POST /api/auth/verify-otp
+ */
+router.post("/verify-otp", authLimiter, async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return sendError(
+        res,
+        400,
+        ErrorCodes.VALIDATION_ERROR,
+        "Email and OTP are required"
+      );
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      return sendError(res, 404, ErrorCodes.NOT_FOUND, "User not found");
+    }
+
+    if (
+      user.otp !== otp ||
+      !user.otpExpires ||
+      user.otpExpires < Date.now()
+    ) {
+      return sendError(res, 401, ErrorCodes.AUTH_ERROR, "Invalid or expired OTP");
+    }
+
+    // Clear OTP after use
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    // Generate JWT (same as password login)
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role || "user"
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    return res.json({ token });
+
+  } catch (error) {
+    console.error("Verify OTP error:", error);
+    return sendError(res, 500, ErrorCodes.SERVER_ERROR, "Server error");
+  }
+});
+
+
 
 // Get current logged-in user
 router.get("/me", authMiddleware, async (req, res) => {
