@@ -54,7 +54,7 @@
         </div>
 
 
-        <button type="submit" class="login-btn">
+        <button type="submit" class="login-btn" id="loginBtn">
           Login
         </button>
 
@@ -71,7 +71,28 @@
   const form = document.getElementById('loginForm');
   const errorDiv = document.getElementById('error');
   const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
   const rememberCheckbox = document.getElementById('rememberEmail');
+  const loginBtn = document.getElementById('loginBtn');
+
+  // Loading state management
+  function setLoading(isLoading) {
+    if (isLoading) {
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+      loginBtn.style.opacity = '0.7';
+      loginBtn.style.cursor = 'not-allowed';
+      emailInput.disabled = true;
+      passwordInput.disabled = true;
+    } else {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Login';
+      loginBtn.style.opacity = '1';
+      loginBtn.style.cursor = 'pointer';
+      emailInput.disabled = false;
+      passwordInput.disabled = false;
+    }
+  }
 
   // Load remembered email on page load
   window.addEventListener('DOMContentLoaded', () => {
@@ -86,9 +107,10 @@
     e.preventDefault();
 
     const email = emailInput.value;
-    const password = document.getElementById('password').value;
+    const password = passwordInput.value;
 
     errorDiv.textContent = '';
+    setLoading(true);
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -100,7 +122,11 @@
       const data = await res.json();
 
       if (!res.ok) {
-        errorDiv.textContent = data.message || 'Login failed';
+        // Handle error response format
+        const errorMessage = data.error?.message || data.message || 'Login failed';
+        errorDiv.textContent = errorMessage;
+        errorDiv.style.display = 'block';
+        setLoading(false);
         return;
       }
 
@@ -114,12 +140,17 @@
       // Save JWT token
       localStorage.setItem('token', data.token);
 
+      // Success: Keep loading state during redirect
+      loginBtn.textContent = 'Success! Redirecting...';
+
       // Redirect
       window.location.href = 'dashboard.html';
 
     } catch (err) {
       console.error(err);
-      errorDiv.textContent = 'Something went wrong. Try again.';
+      errorDiv.textContent = 'Network error. Please check your connection and try again.';
+      errorDiv.style.display = 'block';
+      setLoading(false);
     }
   });
 </script>
