@@ -66,7 +66,7 @@ router.post("/", auth, userOrAdmin, upload.single("image"), async (req, res) => 
   }
 });
 
-// GET /api/recipes (public list)
+// GET /api/recipes (public all list)
 router.get("/", async (req, res) => {
   try {
     const recipes = await Recipe.find().sort({ createdAt: -1 });

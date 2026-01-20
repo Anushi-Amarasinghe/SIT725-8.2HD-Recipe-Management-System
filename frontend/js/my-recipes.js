@@ -20,7 +20,7 @@ async function renderMyRecipes() {
   grid.innerHTML = "<p>Loading…</p>";
 
   try {
-    const res = await fetch("/api/recipes");
+    const res = await fetch("/api/recipes/mine");
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
@@ -69,7 +69,7 @@ async function renderMyRecipes() {
 }
 
 async function deleteRecipeById(id) {
-  const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+  const res = await fetch(`/api/recipes/mine${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
 
