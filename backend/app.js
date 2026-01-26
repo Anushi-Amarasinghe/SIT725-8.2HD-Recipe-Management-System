@@ -5,6 +5,8 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
 const recipeRoutes = require("./routes/recipes");
+const commentRoutes = require("./routes/comments");
+const usersRoutes = require("./routes/users");
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/users", usersRoutes);
 
 // Handle 404 for unknown routes (MUST be last)
 app.use((req, res) => {

@@ -1,14 +1,10 @@
 // search.js
-
-// Store all recipes globally for filtering
 let allRecipes = [];
 
-// Call this function after loading recipes
 function setRecipes(recipes) {
   allRecipes = recipes;
 }
 
-// Render recipes in the grid
 function renderRecipeGrid(recipes, gridId = "recipesGridA") {
   const grid = document.getElementById(gridId);
   if (!grid) return;
@@ -36,17 +32,15 @@ function renderRecipeGrid(recipes, gridId = "recipesGridA") {
           </div>
         </div>
       </div>
-    `)
-    .join("");
+    `).join("");
 }
 
-// Attach search input listener
 function attachSearch(inputId = "recipeSearch", gridId = "recipesGridA") {
   const searchInput = document.getElementById(inputId);
   if (!searchInput) return;
 
-  searchInput.addEventListener("input", (e) => {
-    const query = e.target.value.toLowerCase();
+  searchInput.addEventListener("input", e => {
+    const query = e.target.value.trim().toLowerCase();
     const filtered = allRecipes.filter(r => r.title.toLowerCase().includes(query));
     renderRecipeGrid(filtered, gridId);
   });
@@ -58,3 +52,18 @@ window.searchModule = {
   renderRecipeGrid,
   attachSearch
 };
+
+// -------------------------
+// Example initialization:
+// -------------------------
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("/api/recipes");
+    const data = await res.json();
+    searchModule.setRecipes(data.recipes);
+    searchModule.renderRecipeGrid(data.recipes);
+    searchModule.attachSearch();
+  } catch (err) {
+    console.error("Failed to load recipes", err);
+  }
+});

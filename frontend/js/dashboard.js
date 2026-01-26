@@ -5,26 +5,6 @@
 =========================== */
 const mainContent = document.getElementById("mainContent");
 
-// Handle dynamic buttons inside loaded pages
-mainContent.addEventListener("click", async (e) => {
-
-  // OPEN button
-  const openBtn = e.target.closest(".open-btn");
-  if (openBtn) {
-    const recipeId = openBtn.dataset.id;
-    if (!recipeId) return;
-
-    // Store recipe ID in sessionStorage so view-recipe.js can fetch it
-    sessionStorage.setItem("viewRecipeId", recipeId);
-
-    // Load view page
-    loadPage("recipedetails.html"); // or your proper path
-    return;
-  }
-
-});
-
-
 /* ===========================
    Utility functions
 =========================== */
@@ -42,7 +22,6 @@ function renderStars(rating) {
   return "★★★★★".slice(0, r) + "☆☆☆☆☆".slice(0, 5 - r);
 }
 
-
 /* ===========================
    Page loader
 =========================== */
@@ -52,18 +31,26 @@ async function loadPage(page, btnId) {
     if (!res.ok) throw new Error(`Failed to load pages/${page}`);
 
     const html = await res.text();
+
+    // Inject HTML first
     mainContent.innerHTML = html;
 
-    // Page-specific initializers
+    // ⚡ Call page-specific initializers AFTER HTML is injected
     if (page === "my-recipes.html" && window.loadMyRecipes) {
       await window.loadMyRecipes();
     }
+
     if (page === "recipes.html") {
       if (window.loadAllRecipes) await window.loadAllRecipes();
-      if (window.initRecipeFilters) window.initRecipeFilters(); // <-- attach filters here
+      if (window.initRecipeFilters) window.initRecipeFilters();
     }
+
     if (page === "settings.html" && window.loadSettings) {
-      window.loadSettings(); // initialize settings page
+      window.loadSettings();
+    }
+
+    if (page === "recipedetails.html" && window.loadRecipeDetails) {
+      await window.loadRecipeDetails();
     }
 
     // Set active sidebar button
@@ -78,7 +65,6 @@ async function loadPage(page, btnId) {
     mainContent.innerHTML = "<p>Error loading page</p>";
   }
 }
-
 
 /* ===========================
    Sidebar buttons
@@ -95,11 +81,24 @@ for (const [btnId, page] of Object.entries(sidebarMap)) {
   document.getElementById(btnId)?.addEventListener("click", () => loadPage(page, btnId));
 }
 
-
 /* ===========================
    Dynamic buttons inside loaded pages
 =========================== */
 mainContent.addEventListener("click", async (e) => {
+
+  // OPEN button -> Load recipe details
+  const openBtn = e.target.closest(".open-btn");
+  if (openBtn) {
+    const recipeId = openBtn.dataset.id;
+    if (!recipeId) return;
+
+    // Store recipe ID in sessionStorage
+    sessionStorage.setItem("viewRecipeId", recipeId);
+
+    // Load recipe details page
+    loadPage("recipedetails.html");
+    return;
+  }
 
   // EDIT button
   const editBtn = e.target.closest(".edit-btn");
@@ -110,7 +109,7 @@ mainContent.addEventListener("click", async (e) => {
     return;
   }
 
-  // DELETE button (for My Recipes)
+  // DELETE button
   const deleteBtn = e.target.closest(".delete-btn");
   if (deleteBtn && window.deleteRecipeById && window.loadMyRecipes) {
     const recipeId = deleteBtn.dataset.id;
@@ -119,7 +118,7 @@ mainContent.addEventListener("click", async (e) => {
 
     try {
       await window.deleteRecipeById(recipeId);
-      await window.loadMyRecipes(); // Refresh My Recipes list
+      await window.loadMyRecipes();
     } catch (err) {
       alert(err.message || "Failed to delete recipe");
     }
@@ -127,14 +126,12 @@ mainContent.addEventListener("click", async (e) => {
 
 });
 
-
 /* ===========================
    Default page load
 =========================== */
 document.addEventListener("DOMContentLoaded", () => {
   loadPage("recipes.html", "RecipesBtn");
 });
-
 
 /* ===========================
    My Recipes Page
@@ -167,16 +164,29 @@ async function loadMyRecipes() {
 
     grid.innerHTML = recipes
       .map(r => `
-        <div class="recipe-card">
+        <div class="recipe-card" 
+          data-likes="${r.likes || 0}" 
+          data-dislikes="${r.dislikes || 0}" 
+          data-category="${r.category}" 
+          data-region="${r.region}" 
+          data-date="${r.createdAt}">
+
           <div class="image-placeholder">
-            ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}" />` : "[IMAGE]"}
+            ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}" />` : "[IMAGE]"}
           </div>
+
           <div class="content">
-            <div class="title">${escapeHtml(r.title)}</div>
-            <div class="rating">Rating: ${renderStars(r.rating || 0)}</div>
+            <div class="title-wrapper">
+              <div class="title">${r.title}</div>
+            </div>
+
+            <div class="likes-wrapper">
+              <i class="fa-regular fa-thumbs-up"></i>
+              <i class="fa-regular fa-thumbs-down"></i>
+            </div>
+
             <div class="actions">
-              <button class="edit-btn" data-id="${r._id}">Edit</button>
-              <button class="delete-btn" data-id="${r._id}">Delete</button>
+              <button class="open-btn" data-id="${r._id}">Open</button>
             </div>
           </div>
         </div>
@@ -188,12 +198,9 @@ async function loadMyRecipes() {
   }
 }
 
-
 /* ===========================
    All Recipes Page
-   (recipes.html)
 =========================== */
-// Example placeholder: you can move your all-recipes.js logic here
 async function loadAllRecipes() {
   const grid = document.getElementById("recipesGridA");
   if (!grid) return;
@@ -222,16 +229,35 @@ async function loadAllRecipes() {
 
     grid.innerHTML = recipes
       .map(r => `
-        <div class="recipe-card">
+        <div class="recipe-card" 
+          data-likes="${r.likes || 0}" 
+          data-dislikes="${r.dislikes || 0}" 
+          data-category="${r.category}" 
+          data-region="${r.region}" 
+          data-date="${r.createdAt}">
+
           <div class="image-placeholder">
-            ${r.imageUrl ? `<img src="${escapeHtml(r.imageUrl)}" alt="${escapeHtml(r.title)}" />` : "[IMAGE]"}
+            ${r.imageUrl ? `<img src="${r.imageUrl}" alt="${r.title}" />` : "[IMAGE]"}
           </div>
+
           <div class="content">
-            <div class="title">${escapeHtml(r.title)}</div>
-            <div class="rating">Rating: ${renderStars(r.rating || 0)}</div>
+            <div class="title-wrapper">
+              <div class="title">${r.title}</div>
+            </div>
+
+            <div class="likes-wrapper">
+              <div class="like-display">
+                <i class="fa-regular fa-thumbs-up"></i>
+                <span>${r.is_like || 0}</span>
+              </div>
+              <div class="dislike-display">
+                <i class="fa-regular fa-thumbs-down"></i>
+                <span>${r.is_dislike || 0}</span>
+              </div>
+            </div>
+
             <div class="actions">
               <button class="open-btn" data-id="${r._id}">Open</button>
-              <button class="share-btn" data-id="${r._id}">Share</button>
             </div>
           </div>
         </div>
@@ -243,11 +269,10 @@ async function loadAllRecipes() {
   }
 }
 
-
 /* ===========================
    Expose globally
 =========================== */
 window.loadMyRecipes = loadMyRecipes;
-window.renderStars = renderStars;
-window.escapeHtml = escapeHtml;
 window.loadAllRecipes = loadAllRecipes;
+window.escapeHtml = escapeHtml;
+window.renderStars = renderStars;

@@ -8,14 +8,12 @@
 
 <!-- Filter Bar -->
 <div class="filter-bar">
-  <select id="filterRating">
-    <option value="">Filter by Rating</option>
-    <option value="5">★★★★★</option>
-    <option value="4">★★★★☆</option>
-    <option value="3">★★★☆☆</option>
-    <option value="2">★★☆☆☆</option>
-    <option value="1">★☆☆☆☆</option>
-    <option value="0">☆☆☆☆☆</option>
+  <select id="filterSort">
+    <option value="best">Best Match</option>
+    <option value="latest">Latest</option>
+    <option value="oldest">Oldest</option>
+    <option value="most-liked">Most Liked</option>
+    <option value="least-liked">Least Liked</option>
   </select>
 
   <select id="filterCategory">
@@ -32,12 +30,6 @@
     <option value="america">America</option>
   </select>
 
-  <select id="filterSort">
-    <option value="">Sort by</option>
-    <option value="latest">Latest</option>
-    <option value="oldest">Oldest</option>
-  </select>
-
   <button id="clearFilters">Clear</button>
 </div>
 
@@ -46,4 +38,5 @@
   <div class="recipes-grid" id="recipesGridA">
     <p>Loading…</p>
   </div>
+
 
