@@ -27,12 +27,7 @@ async function renderMyRecipes() {
   }
 
   try {
-    // Use protected endpoint for user's recipes
-    const res = await fetch("/api/recipes/mine", {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const res = await fetch("/api/recipes/mine");
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
@@ -81,13 +76,7 @@ async function renderMyRecipes() {
 }
 
 async function deleteRecipeById(id) {
-  // Get token for authenticated request
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("Authentication required");
-  }
-
-  const res = await fetch(`/api/recipes/${encodeURIComponent(id)}`, {
+  const res = await fetch(`/api/recipes/mine${encodeURIComponent(id)}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${token}`

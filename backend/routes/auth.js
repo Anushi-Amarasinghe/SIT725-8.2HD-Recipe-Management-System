@@ -324,6 +324,30 @@ router.get("/admin/me", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+//user ifo
+// Get current logged-in user
+// GET user by ID (public info)
+router.get("/public/:id", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Fetch user by ID, exclude sensitive fields
+    const user = await User.findById(userId).select("name avatar email"); 
+    // Only return safe fields: name, avatar, email optional
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user });
+  } catch (err) {
+    console.error("Get user error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
 /**
  * @route   POST /api/auth/logout
  * @desc    Logout user
@@ -348,5 +372,6 @@ router.post("/logout", authMiddleware, userOrAdmin, async (req, res) => {
       process.env.NODE_ENV === "development" ? error.message : undefined);
   }
 });
+
 
 module.exports = router;
