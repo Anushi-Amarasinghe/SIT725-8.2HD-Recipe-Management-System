@@ -6,10 +6,13 @@
   <title>Dashboard | Recipe Management System</title>
 
   <link rel="stylesheet" href="css/dashboard.css" />
-  <link rel="stylesheet" href="css/activity-feed.css" />
+  <link rel="stylesheet" href="css/settings.css" />
+  <link rel="stylesheet" href="css/recipe-details.css" />
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/solid.min.css" integrity="sha512-EHa6vH03/Ty92WahM0/tet1Qicl76zihDCkBnFhN3kFGQkC+mc86d7V+6y2ypiLbk3h0beZAGdUpzfMcb06cMg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
 <body>
@@ -18,7 +21,7 @@
   <div class="logo">
     <img src="images/rms_logo.png" alt="RMS Logo" />
   </div>
-  <input type="search" placeholder="Search recipes..." />
+  <input type="search" id="recipeSearch" placeholder="Search recipes..." />
   <div class="user-profile">
   <button class="user-btn">
     <img src="images/user-avatar.png" alt="User" class="user-avatar">
@@ -70,7 +73,10 @@
 <script src="js/authCheck.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/filterCate.js"></script>
-<script src="js/activity-feed.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/search.js"></script>
+<script src="js/recipe-details.js"></script>
+
 
 <script>
   // Update greeting
