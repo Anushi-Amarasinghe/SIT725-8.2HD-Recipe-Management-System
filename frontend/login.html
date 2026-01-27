@@ -103,13 +103,40 @@
     }
   });
 
+  // Email validation function
+  function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = emailInput.value;
+    const email = emailInput.value.trim();
     const password = passwordInput.value;
 
     errorDiv.textContent = '';
+
+    // Client-side email validation
+    if (!email) {
+      errorDiv.textContent = 'Email is required';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      errorDiv.textContent = 'Invalid email format';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
+    // Password presence check
+    if (!password) {
+      errorDiv.textContent = 'Password is required';
+      errorDiv.style.display = 'block';
+      return;
+    }
+
     setLoading(true);
 
     try {
