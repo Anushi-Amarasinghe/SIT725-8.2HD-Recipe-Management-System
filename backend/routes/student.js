@@ -5,8 +5,8 @@ const router = express.Router();
 // Returns student name and student ID as JSON
 router.get("/", (req, res) => {
   res.json({
-    name: "Anushi Amarasinghe", // TODO: Replace with your actual name
-    studentId: "s224727365" // TODO: Replace with your actual student ID
+    name: "Anushi Amarasinghe", 
+    studentId: "s224727365" 
   });
 });
 
