@@ -82,7 +82,7 @@ docker-compose down -v
   ```json
   {
     "name": "Anushi Amarasinghe",
-    "studentId": "s224727365"
+    "studentId": "s22........."
   }
   ```
 
