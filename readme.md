@@ -1,7 +1,5 @@
 # Recipe Management System - Docker Containerization
-**Student:** Anushi Amarasinghe  
-**Student ID:** s224727365  
-**Task:** SIT725 8.2HD 
+
 
 ##  Task Overview
 
