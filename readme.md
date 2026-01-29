@@ -1,77 +1,189 @@
-Recipe Management System
+# Recipe Management System - Docker Containerization
+**Student:** Anushi Amarasinghe  
+**Student ID:** s224727365  
+**Task:** SIT725 8.2HD 
 
+##  Task Overview
 
+This repository contains a fully containerized recipe management system application that has completed the SIT725 high-resolution task. The application is Dockerized to run end-to-end, including the front-end, back-end, and MongoDB database.
 
-A modern, user-friendly web application to create, organize, and manage recipes. Users can add recipes with ingredients, instructions, categories, and images, making it easy to build a personal cookbook or manage recipes for home or professional use.
+### Task Requirements Completed
 
-📌 Features
+ **Entire application containerized** - Frontend, backend, and database all run in Docker containers  
+ **Database integration functional** - MongoDB runs in container and connects successfully  
+ **Student identity endpoint** - `/api/student` route returns student name and ID    
 
-User Authentication – Login and registration
+---
 
-CRUD Recipes – Create, read, update, and delete recipes
+##  How to Build and Start the Application
 
-Categorization – Breakfast, Desserts, Vegetarian, etc.
+### Prerequisites
 
-Step-by-step Instructions – For every recipe
+Before running the application, ensure you have the following installed:
 
-Image Upload – Upload photos for recipes
+- **Docker Desktop** (or Docker Engine + Docker Compose)
+  - Download from: https://www.docker.com/products/docker-desktop
+  - For Windows: Requires WSL2 backend
+  - Verify installation: `docker --version` and `docker-compose --version`
 
-Search & Filter – Quickly find recipes
+### Setup Steps
 
-Responsive Design – Works on desktop and mobile
+1. **Clone or download this repository**
+   ```bash
+   git clone <repository-url>
+   cd Recipe-Management-System
+   ```
 
-Creative UI – Modern, glassmorphism login screen with icons and gradients
+2. **No additional setup required!**
+   - All configuration is included in `docker-compose.yml`
+   - Default values are provided for all environment variables
 
+### Build and Start
 
-                                                API LIST
+From the `Recipe-Management-System` directory, run:
 
-Auth APIs
+```bash
+docker-compose up --build
+```
 
-| Method | Path                        | Access | Purpose                                                       |
-| ------ | --------------------------- | ------ | ------------------------------------------------------------- |
-| POST   | `/api/auth/register`        | Public | Register a new user (`f_name`, `l_name`, `email`, `password`) |
-| POST   | `/api/auth/login`           | Public | Login user and return JWT token                               |
-| POST   | `/api/auth/logout`          | Auth   | Logout user / invalidate token                                |
-| POST   | `/api/auth/forgot-password` | Public | Request password reset (send OTP/email)                       |
-| POST   | `/api/auth/reset-password`  | Public | Reset password using OTP                                      |
+**What happens:**
+- Docker builds the backend image using `backend/Dockerfile`
+- Downloads MongoDB 7.0 image 
+- Creates and starts both containers
+- MongoDB initializes first 
+- Backend connects to MongoDB and starts the server
+- Application becomes available at `http://localhost:5001`
 
+**First run:** Takes a few minutes to build images and download dependencies  
+**Subsequent runs:** Use `docker-compose up` (faster, uses cached images)
 
-User APIs
+**Run in background:** `docker-compose up -d` 
 
-| Method | Path                    | Access     | Purpose                                             |
-| ------ | ----------------------- | ---------- | --------------------------------------------------- |
-| GET    | `/api/users/public/:id` | Public     | Get public info of a user (name, role, avatar)      |
-| GET    | `/api/users/me`         | Auth       | Get current logged-in user info (exclude password)  |
-| PATCH  | `/api/users/me`         | Auth       | Update logged-in user profile (name, email, avatar) |
-| PUT    | `/api/users/me`         | Auth       | Replace entire profile (all fields)                 |
-| GET    | `/api/users`            | Admin only | Get all users (admin dashboard)                     |
-| DELETE | `/api/users/:id`        | Admin only | Delete a user by ID                                 |
+### Stop the Application
 
+Press `Ctrl+C` in the terminal, or run:
+```bash
+docker-compose down
+```
 
-Recipe APIs
+**To remove volumes (deletes database data):**
+```bash
+docker-compose down -v
+```
 
-| Method | Path                         | Access | Purpose                                        |
-| ------ | ---------------------------- | ------ | ---------------------------------------------- |
-| GET    | `/api/recipes/`              | Auth   | Get all recipes (public recipes for all users) |
-| GET    | `/api/recipes/mine`          | Auth   | Get recipes created by the current user        |
-| GET    | `/api/recipes/:id`           | Auth   | Get recipe details by ID                       |
-| POST   | `/api/recipes/`              | Auth   | Create a new recipe                            |
-| PATCH  | `/api/recipes/:id`           | Auth   | Update recipe (must belong to user or admin)   |
-| PUT    | `/api/recipes/:id`           | Auth   | Replace entire recipe (all fields required)    |
-| DELETE | `/api/recipes/:id`           | Auth   | Delete recipe (must belong to user or admin)   |
-| POST   | `/api/recipes/:id/like`      | Auth   | Like a recipe                                  |
-| POST   | `/api/recipes/:id/dislike`   | Auth   | Dislike a recipe                               |
-| POST   | `/api/recipes/:id/favourite` | Auth   | Save recipe to favourites                      |
-| GET    | `/api/recipes/:id/comments`  | Auth   | Get all comments for a recipe                  |
-| POST   | `/api/recipes/:id/comments`  | Auth   | Add comment to a recipe                        |
+##  Access the Application
 
+### Web Application
+- **URL:** `http://localhost:5001`
+- **Port:** 5001 (mapped from container port 5000)
 
-Comments APIs
+### Student Identity Endpoint
+- **URL:** `http://localhost:5001/api/student`
+- **Method:** GET
+- **Response:**
+  ```json
+  {
+    "name": "Anushi Amarasinghe",
+    "studentId": "s224727365"
+  }
+  ```
 
-| Method | Path                      | Access | Purpose                                |
-| ------ | ------------------------- | ------ | -------------------------------------- |
-| GET    | `/api/comments/:recipeId` | Auth   | Get all comments for a recipe          |
-| POST   | `/api/comments`           | Auth   | Add a comment (`recipe_id`, `comment`) |
-| DELETE | `/api/comments/:id`       | Auth   | Delete a comment by ID                 |
+### MongoDB Access 
+- **Port:** 27017
+- **Connection String:** `mongodb://localhost:27017/recipes_db`
 
+##  Configuration
+
+### Environment Variables
+
+All configuration is handled via `docker-compose.yml`. The following environment variables are set:
+
+- **PORT:** 5000 (inside container)
+- **MONGO_URI:** `mongodb://mongodb:27017/recipes_db` (connects to MongoDB container)
+- **JWT_SECRET:** `supersecretkey` (default, can be overridden)
+- **NODE_ENV:** `production`
+
+### Sensitive Information
+
+- No sensitive values are hard-coded in the repository
+- Default values are provided in `docker-compose.yml` for easy testing
+
+---
+
+##  Project Structure
+
+```
+Recipe-Management-System/
+├── backend/                 # Node.js backend application
+│   ├── Dockerfile          # Docker image build instructions
+│   ├── .dockerignore       # Files excluded from Docker build
+│   ├── server.js           # Application entry point
+│   ├── app.js              # Express app configuration
+│   ├── routes/             # API routes (including /api/student)
+│   ├── models/             # MongoDB models
+│   └── ...
+├── frontend/               # Static HTML/CSS/JS frontend
+├── docker-compose.yml      # Multi-container orchestration
+├── README.md              # This file
+
+```
+
+---
+
+##  Testing the Application
+
+### 1. Verify Containers are Running
+
+```bash
+docker ps
+```
+
+You should see two containers:
+- `recipe-mongodb` (MongoDB)
+- `recipe-backend` (Node.js application)
+
+### 2. Test Student Endpoint
+
+Open your browser or use curl:
+```bash
+curl http://localhost:5001/api/student
+```
+
+Expected response:
+```json
+{"name":"Anushi Amarasinghe","studentId":"s224727365"}
+```
+
+### 3. Test Web Application
+
+1. Open `http://localhost:5001` in your browser
+2. Register a new user account
+3. Log in with your credentials
+4. Create a recipe (test database functionality)
+5. Verify all features work end-to-end
+
+### 4. Check Logs
+
+View application logs:
+```bash
+docker-compose logs backend
+```
+
+View MongoDB logs:
+```bash
+docker-compose logs mongodb
+```
+
+---
+
+##  Docker Architecture
+
+The application uses a multi-container setup:
+
+- **MongoDB Container:** Runs MongoDB 7.0, data persisted in `mongodb_data` volume
+- **Backend Container:** Runs Node.js app, serves frontend, connects to MongoDB
+- **Network:** Both containers on `recipe-network` for service discovery
+- **Volumes:** 
+  - `mongodb_data`: Persistent database storage
+  - `./backend/uploads`: Recipe images 
 

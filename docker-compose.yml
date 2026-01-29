@@ -1,0 +1,41 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: recipe-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: recipes_db
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - recipe-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    container_name: recipe-backend
+    restart: unless-stopped
+    ports:
+      - "5001:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/recipes_db
+      - JWT_SECRET=${JWT_SECRET:-supersecretkey}
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - recipe-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  recipe-network:
+    driver: bridge
