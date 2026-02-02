@@ -149,7 +149,7 @@ curl http://localhost:5001/api/student
 
 Expected response:
 ```json
-{"name":"Anushi Amarasinghe","studentId":"s224727365"}
+{"name":"Anushi Amarasinghe","studentId":"s2............"}
 ```
 
 ### 3. Test Web Application
